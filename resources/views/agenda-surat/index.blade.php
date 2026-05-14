@@ -1,3 +1,4 @@
+{{--
 <!DOCTYPE html>
 <html lang="id" class="h-full">
 
@@ -11,9 +12,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+
+    @extends('layouts.app2')
 
 
+
+    @section('styles')
     <style>
         @media print {
             @page {
@@ -67,12 +72,44 @@
             }
         }
     </style>
-</head>
+    @endsection
+    @section('content')
 
-<body class="h-full bg-slate-50 font-sans antialiased">
+    {{--
 
-    <div class="min-h-screen bg-slate-100 p-3 md:p-6" x-data="{
-        search: '{{ request('search') }}',
+<body class="h-full bg-slate-50 font-sans antialiased"> --}}
+    {{-- <header class="bg-surface dark:bg-surface-dim shadow-sm docked full-width top-0 sticky z-30">
+        <div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-screen-2xl mx-auto">
+            <div class="flex items-center gap-8">
+                <span class="text-title-lg font-title-lg font-bold text-primary dark:text-primary-fixed-dim">Satpol
+                    PP Kota Semarang</span>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors"
+                        href="#">Index</a>
+                    <a class="text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary dark:border-primary-fixed-dim pb-1"
+                        href="#">About</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="relative hidden sm:block">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+                    <input
+                        class="bg-surface-container rounded-full pl-10 pr-4 py-2 text-body-md border-none focus:ring-2 focus:ring-primary w-64"
+                        placeholder="Cari surat..." type="text" />
+                </div>
+                <button class="p-2 hover:bg-surface-container rounded-lg transition-colors active:scale-95">
+                    <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+                </button>
+                <button class="p-2 hover:bg-surface-container rounded-lg transition-colors active:scale-95">
+                    <span class="material-symbols-outlined text-on-surface-variant">account_circle</span>
+                </button>
+            </div>
+        </div>
+    </header> --}}
+
+    <div class="min-h-screen  p-3 md:p-6" x-data="{
+        {{-- search: '{{ request('search') }}',
         debouncedSearch: '{{ request('search') }}',
         debounceTimeout: null,
 
@@ -95,7 +132,23 @@
                 (item.jenis?.toLowerCase() || '').includes(term)
             );
         }
-     }">
+     }"> --}}
+        search: '',
+
+        filterRow(item) {
+        if (!this.search) return true;
+
+        const term = this.search.toLowerCase();
+
+        return (
+        (item.no_agenda || '').toLowerCase().includes(term) ||
+        (item.instansi || '').toLowerCase().includes(term) ||
+        (item.perihal || '').toLowerCase().includes(term) ||
+        (item.jenis || '').toLowerCase().includes(term)
+        );
+        }
+        }
+        ">
 
         {{-- HEADER & FILTER --}}
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5">
@@ -106,13 +159,13 @@
         </div>
 
         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-5">
-            <form method="GET" action="{{ route('agenda-surat.index') }}">
+            <form method="GET" action="{{ route('home') }}">
                 <div class="flex flex-col lg:flex-row gap-4 lg:items-end lg:justify-between">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">Pencarian</label>
                             <div class="relative">
-                                <input type="text" x-model="search" name="search"
+                                <input type="text" x-model.debounce.300ms="search"
                                     placeholder="Cari no agenda, instansi, perihal..."
                                     class="w-full rounded-xl border-slate-300 focus:border-sky-500 focus:ring-sky-500 pl-10">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔎</span>
@@ -137,7 +190,7 @@
                             class="bg-sky-600 hover:bg-sky-700 text-white px-6 py-2 rounded-xl text-sm font-medium">
                             Terapkan Filter
                         </button>
-                        <a href="{{ route('agenda-surat.index') }}"
+                        <a href="{{ route('home') }}"
                             class="bg-slate-500 hover:bg-slate-600 text-white px-6 py-2 rounded-xl text-sm font-medium">
                             Reset
                         </a>
@@ -185,7 +238,7 @@
                                     no_agenda: '{{ addslashes($item->no_agenda ?? '') }}',
                                     instansi: '{{ addslashes($item->instansi ?? '') }}',
                                     perihal: '{{ addslashes($item->perihal ?? '') }}',
-                                    jenis: '{{ $item->jenis ?? '' }}'
+                                    jenis: '{{ addslashes($item->jenis ?? '') }}'
                                 })">
                             <td class="border px-3 py-2 text-center">{{ $nomor++ }}</td>
                             <td class="border px-3 py-2 whitespace-nowrap">{{ $item->instansi }}</td>
@@ -227,13 +280,6 @@
                                     {{ strtoupper($item->status ?? '-') }}
                                 </span>
                             </td>
-                            {{-- <td class="border px-3 py-2">
-                                <span
-                                    class="px-2 py-1 rounded-lg text-xs font-semibold
-                                        {{ $item->jenis == 'Surat Masuk' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700' }}">
-                                    {{ $item->jenis }}
-                                </span>
-                            </td> --}}
                         </tr>
                         @endforeach
                         @empty
@@ -249,6 +295,4 @@
         </div>
     </div>
 
-</body>
-
-</html>
+    @endsection

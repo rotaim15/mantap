@@ -10,9 +10,6 @@ use App\Http\Controllers\SuratKeluarController;
 use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\UserController;
 
-// Route::get('/', function () {
-//     return view('dashboard.index');
-// });
 Route::get('/lokasis', function () {
     return view('lokasi.lokasi');
 })->name('lokasis');
@@ -43,14 +40,6 @@ Route::middleware('auth')->group(function () {
 Route::get('/manual-backup', [App\Http\Controllers\ManualBackupController::class, 'index'])->name('backup.index');
 Route::post('/manual-backup/run', [App\Http\Controllers\ManualBackupController::class, 'create'])->name('backup.run');
 Route::get('/manual-backup/download/{file}', [App\Http\Controllers\ManualBackupController::class, 'download'])->name('backup.download');
-
-
-
-// Route::get('/agendas', [AgendaController::class, 'index'])->name('agenda.index');
-
-// Route::post('/agendas', [AgendaController::class, 'store']);
-// Route::put('/agendas/{id}', [AgendaController::class, 'update']);
-// Route::delete('/agendas/{id}', [AgendaController::class, 'destroy']);
 
 
 
@@ -96,7 +85,6 @@ Route::middleware('auth', 'verified')->group(function () {
 
     // Users (admin only)
 });
-// Route::resource('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index')->middleware('admin');
 
 
 require __DIR__ . '/auth.php';
@@ -111,4 +99,8 @@ Route::resource('users', UserController::class)->middleware('can:admin');
 Route::get('/agenda', [App\Http\Controllers\AgendaController::class, 'index'])
     ->name('agenda.index');
 Route::get('/', [App\Http\Controllers\AgendasuratController::class, 'index'])
-    ->name('agenda-surat.index');
+    ->name('home');
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
